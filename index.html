@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>V-Loans | Student Cash Loans</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:"Segoe UI",Arial;
+  min-height:100vh;
+  background:linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  animation:bgMove 10s infinite alternate;
+}
+
+@keyframes bgMove{
+  0%{filter:hue-rotate(0deg)}
+  100%{filter:hue-rotate(25deg)}
+}
+
+.container{
+  width:100%;
+  max-width:520px;
+  background:#fff;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 25px 50px rgba(0,0,0,.35);
+  animation:floatIn .8s ease;
+}
+
+@keyframes floatIn{
+  from{opacity:0;transform:translateY(40px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* BRAND */
+.brand{text-align:center;margin-bottom:10px}
+.logo{
+  width:75px;height:75px;margin:auto;
+  border-radius:50%;
+  background:linear-gradient(135deg,#203a43,#2c5364);
+  color:#fff;font-size:34px;font-weight:bold;
+  display:flex;align-items:center;justify-content:center;
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{
+  50%{transform:scale(1.08)}
+}
+
+/* INPUTS */
+label{font-weight:600;margin-top:14px;display:block}
+input,select{
+  width:100%;padding:12px;margin-top:6px;
+  border-radius:12px;border:1px solid #ccc;
+  transition:.3s;
+}
+input:focus,select:focus{
+  border-color:#2c5364;
+  box-shadow:0 0 10px rgba(44,83,100,.4);
+  transform:scale(1.02);
+  outline:none;
+}
+
+/* RESULT */
+.result{
+  margin-top:15px;
+  padding:16px;
+  border-radius:14px;
+  background:linear-gradient(135deg,#56ab2f,#a8e063);
+  color:#fff;
+  font-weight:bold;
+  text-align:center;
+  animation:glow 2s infinite;
+}
+@keyframes glow{
+  50%{box-shadow:0 0 20px rgba(168,224,99,.8)}
+}
+
+.terms{
+  margin-top:18px;
+  background:#f9f9f9;
+  padding:15px;
+  border-radius:12px;
+  border-left:5px solid #2c5364;
+  font-size:13px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  margin-top:15px;
+  border:none;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:.3s;
+}
+
+button:hover{
+  transform:translateY(-2px);
+  box-shadow:0 10px 20px rgba(0,0,0,.25);
+}
+
+.whatsapp{
+  background:linear-gradient(135deg,#25D366,#1ebc59);
+  color:#fff;
+  display:none;
+  animation:shake 2s infinite;
+}
+@keyframes shake{
+  90%{transform:translateX(0)}
+  92%{transform:translateX(-3px)}
+  94%{transform:translateX(3px)}
+  96%{transform:translateX(-3px)}
+  98%{transform:translateX(3px)}
+}
+
+.footer{text-align:center;font-size:12px;margin-top:14px;color:#666}
+.error{color:#c0392b;font-size:13px}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="brand">
+  <div class="logo">V</div>
+  <h2>V-Loans</h2>
+  <p>Fast Student Cash Loans</p>
+</div>
+
+<label>Student Full Name</label>
+<input id="studentName" placeholder="e.g. John Mokoena">
+
+<label>Loan Amount (R100 – R5000)</label>
+<input type="number" id="loanAmount" min="100" max="5000" oninput="calculate()">
+<div class="error" id="error"></div>
+
+<label>Repayment Period</label>
+<select id="period" onchange="calculate()">
+  <option value="">Select period</option>
+  <option value="7">7 Days</option>
+  <option value="14">14 Days</option>
+  <option value="30">30 Days</option>
+</select>
+
+<label>Gadget as Collateral</label>
+<select id="gadget" onchange="toggleOther()">
+  <option>Laptop</option>
+  <option>Smartphone</option>
+  <option>Tablet</option>
+  <option>Gaming Console</option>
+  <option>Other</option>
+</select>
+
+<input id="otherGadget" placeholder="Specify other gadget" style="display:none">
+
+<div class="result" id="result">
+Repayment Amount: R0.00
+</div>
+
+<div class="terms">
+<strong>Terms & Conditions</strong>
+<ul>
+  <li>Fixed interest rate of 30%</li>
+  <li>Students only</li>
+  <li>Gadget held as collateral</li>
+  <li>Late payment → gadget sold</li>
+</ul>
+</div>
+
+<label>
+<input type="checkbox" id="accept" onchange="toggleBtn()"> I accept Terms & Conditions
+</label>
+
+<button class="whatsapp" id="waBtn" onclick="sendWA()">
+Send via WhatsApp
+</button>
+
+<div class="footer">📞 079 910 9868</div>
+
+</div>
+
+<script>
+let dueDate="";
+
+function toggleOther(){
+  otherGadget.style.display=gadget.value==="Other"?"block":"none";
+}
+
+function animateNumber(el,start,end){
+  let c=start;
+  let step=(end-start)/20;
+  let i=setInterval(()=>{
+    c+=step;
+    el.innerText="Repayment: R"+c.toFixed(2)+" | Due: "+dueDate;
+    if(c>=end){clearInterval(i)}
+  },30);
+}
+
+function calculate(){
+  const amount=Number(loanAmount.value);
+  const days=Number(period.value);
+
+  if(!amount||!days){return}
+
+  if(amount<100||amount>5000){
+    error.innerText="Amount must be between R100 and R5000";
+    return;
+  }
+
+  error.innerText="";
+  const repay=amount*1.3;
+  const d=new Date(); d.setDate(d.getDate()+days);
+  dueDate=d.toDateString();
+
+  animateNumber(result,0,repay);
+}
+
+function toggleBtn(){
+  waBtn.style.display=accept.checked?"block":"none";
+}
+
+function sendWA(){
+  const name=studentName.value||"Not provided";
+  const g=gadget.value==="Other"?otherGadget.value:gadget.value;
+  const repay=(loanAmount.value*1.3).toFixed(2);
+
+  const msg=
+`V-LOANS APPLICATION
+
+Name: ${name}
+Loan Amount: R${loanAmount.value}
+Repayment: R${repay}
+Repayment Date: ${dueDate}
+Gadget: ${g}`;
+
+  window.open("https://wa.me/27799109868?text="+encodeURIComponent(msg));
+}
+</script>
+
+</body>
+</html>
